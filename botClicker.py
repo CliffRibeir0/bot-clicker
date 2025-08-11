@@ -73,30 +73,38 @@ def select_param(check_change):  # função para isolar o primeiro parâmetro in
     click_at_position(*Config.SHOW_SELECTED_POS)
 
 
-# for i in range(Config.NUM_INITIAL_PARAMS):
-#     if keyboard.is_pressed('q'):
-#         print("Saindo do loop.")
-#         break#quit()
-#     service_not_collected = True
-#     select_param(i)
-#     time.sleep(0.5)
-#     while service_not_collected:
-#         requests[i]  = capture_can(bus, Config.CAN_REQUEST_IDS)
-#         responses[i] = capture_can(bus, Config.CAN_RESPONSE_ID)
+for i in range(Config.NUM_INITIAL_PARAMS):
+    if keyboard.is_pressed('q'):
+        print("Saindo do loop.")
+        break#quit()
+    service_not_collected = True
+    select_param(i)
+    time.sleep(0.5)
+    while service_not_collected:
+        requests[i]  = capture_can(bus, Config.CAN_REQUEST_IDS)
+        responses[i] = capture_can(bus, Config.CAN_RESPONSE_ID)
 
-#         if requests[i][1] == "22":
-#             size_proxy = int(responses[i][0])-3
-#             service_not_collected = False
-#         elif requests[i][1] == "21":
-#             size_proxy = int(responses[i][0])-2
-#             service_not_collected = False
-#         elif requests[i][1] == "1A":
-#             size_proxy = int(responses[i][0])-2
-#             service_not_collected = False
-#         else:
-#             print("Serviço não previsto.")
-#     ocr_param(i,size_proxy)
-#     click_at_position(*Config.CANCEL_ALL_POS, delay=0.1)
+        if requests[i][1] == "22":
+            size_proxy = int(responses[i][0])-3
+            service_not_collected = False
+        elif requests[i][1] == "21":
+            size_proxy = int(responses[i][0])-2
+            service_not_collected = False
+        elif requests[i][1] == "1A":
+            size_proxy = int(responses[i][0])-2
+            service_not_collected = False
+        else:
+            print("Serviço não previsto.")
+
+    # Decide estratégia com base em OCR rápido do valor
+    if verifica_value(i, size_proxy) is True:
+        print("Valor numérico detectado – estratégia linear (L)")
+        select_and_ocr_L(i, size_proxy)
+    else:
+        print("Valor não-numérico ou instável – estratégia TT 3 bits")
+        select_and_ocr_tt_3bit(i, size_proxy)
+    #ocr_param(i,size_proxy)
+    click_at_position(*Config.CANCEL_ALL_POS, delay=0.1)
 
 
 click_at_position(*Config.CHECK_POS, delay=0.1)

@@ -46,8 +46,11 @@ def verifica_value(z: int, size_proxy: int):
     Retorna o que for retornado por analyse_screenshot_custom (via take_region_screenshot) para
     destino 'value_pre' (geralmente bool do is_number).
     """
-    return take_region_screenshot(
-        *Config.VALUE_REGION_WITH_RANGE_COLUMN,z,f"screenshot_value_{z}.png",delay=0.2,analyse=True,destino='value_pre',)
+    canoe = CANoeAutomation()
+    canoe.alterar_sysvar("A0debug", "var", 0)
+    time.sleep(0.1)
+    canoe.close()
+    return take_region_screenshot(*Config.VALUE_REGION_WITH_RANGE_COLUMN,z,f"screenshot_value_{z}.png",delay=0.2,analyse=True,destino='value_pre',)
 
 
 def select_and_ocr_tt_3bit(z, size_proxy):
@@ -81,7 +84,7 @@ def select_and_ocr_tt_3bit(z, size_proxy):
 
         # Varre deslocamentos 1<<i para achar mudança
         i = 0
-        while i <= 7:
+        while i <= 8:
             payload_int = 1 << i
             canoe.alterar_sysvar("A0debug", "var", payload_int)
             time.sleep(0.2)
@@ -100,7 +103,7 @@ def select_and_ocr_tt_3bit(z, size_proxy):
 
         # bit inicial onde houve resposta
         bit_init = int(math.log2(payload_int))
-        i_max = min(7 - bit_init, 4)
+        i_max = min(8 - bit_init, 4)
         limite_loop_3bits = (i_max ** 2) + 2
 
         while True:
@@ -134,7 +137,7 @@ def select_and_ocr_tt_3bit(z, size_proxy):
             # Fallback: contador>=100 → faz leitura 0 a 255
             if contador >= 100:
                 contador = 0
-                total_possible = 10    # até aonde ele irá salvar
+                total_possible = 256    # até aonde ele irá salvar
                 value_anterior = 0
                 # Reinicia sessão CANoe para evitar estado sujo
                 canoe.close()
@@ -153,59 +156,6 @@ def select_and_ocr_tt_3bit(z, size_proxy):
             break
     finally:
         canoe.close()
-
-    #     while True:
-    #         if i_max == 0:
-    #             contador = 100
-    #             canoe.alterar_sysvar("A0debug", f"set_size_proxy_{size_proxy}", 1)
-    #             canoe.alterar_sysvar("A0debug", "var", 0)
-    #             canoe.alterar_sysvar("A0debug", "bitPos", bit_init)
-    #             time.sleep(0.2)
-    #             break
-
-    #         contador = 0
-    #         canoe.alterar_sysvar("A0debug", "bitPos", bit_init)
-    #         time.sleep(0.2)
-
-    #         # Varredura bit a bit até estabilizar
-    #         for payload_int in range((i_max ** 2) + 2):
-    #             canoe.alterar_sysvar("A0debug", "var", payload_int)
-    #             time.sleep(0.2)
-    #             hexstr = f"{payload_int:0{size_proxy*2}X}"
-    #             done = take_region_screenshot(*value_region,z,
-    #                 filename=f"screenshot_value_bit_{z}_{hexstr}.png",analyse=True,destino='value_tt_bit_a_bit_3',)
-    #             if done == 1:
-    #                 canoe.alterar_sysvar("A0debug", "bitPos", 0)
-    #                 canoe.alterar_sysvar("A0debug", "var", 0)
-    #                 time.sleep(0.2)
-    #                 break
-
-    #         # Fallback: contador>=100 → faz leitura 0..255 
-    #         if contador >= 100:
-    #             contador = 0
-    #             total_possible = 10    # até aonde ele irá salvar
-    #             value_anterior = 0
-
-    #             # Reinicia sessão CANoe para evitar estado sujo
-    #             canoe.close()
-    #             canoe = CANoeAutomation()
-
-    #             canoe.alterar_sysvar("A0debug", f"set_size_proxy_{size_proxy}", 1)
-    #             canoe.alterar_sysvar("A0debug", "var", 0)
-    #             canoe.alterar_sysvar("A0debug", "bitPos", 0)
-    #             time.sleep(0.2)
-
-    #             for pattern in range(total_possible):
-    #                 payload_int = pattern
-    #                 canoe.alterar_sysvar("A0debug", f"set_size_proxy_{size_proxy}", 1)
-    #                 canoe.alterar_sysvar("A0debug", "var", payload_int)
-    #                 time.sleep(0.2)
-
-    #                 hexstr = f"{payload_int:0{size_proxy*2}X}"
-    #                 take_region_screenshot(*value_region,z,filename=f"screenshot_value_TT_1Byte_{z}_{hexstr}.png",analyse=True,destino='value_tt_1byte',)
-    #         break
-    # finally:
-    #     canoe.close()
 
 
 # ----------------------------

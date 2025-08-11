@@ -181,8 +181,6 @@ def analyse_screenshot_custom(filename, index, destino):
                 searchParameter.contador += 1
 
             if searchParameter.value_anterior == val:
-                if values.get(index):
-                    values[index].pop()
                 posicao = searchParameter.bit_init
                 bit_pos[index] = [posicao]
                 return 1
@@ -193,6 +191,7 @@ def analyse_screenshot_custom(filename, index, destino):
             print(f"value_tt_bit_a_bit_3 passo contador=2 values[{index}]={values[index]}")
 
         if getattr(searchParameter, 'contador', 0) == 0:
+            searchParameter.value_anterior = val
             values[index] = [{key: val}]
             print(f"value_tt_bit_a_bit_3 init values[{index}]={values[index]}")
             searchParameter.contador += 1
