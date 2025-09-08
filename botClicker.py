@@ -96,14 +96,13 @@ for i in range(Config.NUM_INITIAL_PARAMS):
         else:
             print("Serviço não previsto.")
 
-    # Decide estratégia com base em OCR rápido do valor
     if verifica_value(i, size_proxy) is True:
         print("Valor numérico detectado – estratégia linear (L)")
         select_and_ocr_L(i, size_proxy)
-    else:
+    elif verifica_value(i, size_proxy) is False:
         print("Valor não-numérico ou instável – estratégia TT 3 bits")
         select_and_ocr_tt_3bit(i, size_proxy)
-    #ocr_param(i,size_proxy)
+
     click_at_position(*Config.CANCEL_ALL_POS, delay=0.1)
 
 
@@ -144,10 +143,9 @@ while True:
     if verifica_value(z, size_proxy) is True:
         print("Valor numérico detectado – estratégia linear (L)")
         select_and_ocr_L(z, size_proxy)
-    else:
+    elif verifica_value(z, size_proxy) is False:
         print("Valor não-numérico ou instável – estratégia TT 3 bits")
         select_and_ocr_tt_3bit(z, size_proxy)
-    #select_and_ocr(z, size_proxy)
 
     click_at_position(*Config.CANCEL_ALL_POS, delay=0.1)
     click_at_position(*Config.CHECK_POS)  # volta ao topo para próximo ciclo

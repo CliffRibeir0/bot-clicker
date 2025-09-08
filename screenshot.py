@@ -102,10 +102,12 @@ def analyse_screenshot_custom(filename, index, destino):
     
     img = Image.open(filename)
     
-    if destino == 'name' or 'value_tt_3bit' or 'value_tt_bit_a_bit_3' or 'value_tt_1byte':
+    if destino in ('name' or 'value_tt_3bit' or 'value_tt_bit_a_bit_3' or 'value_tt_1byte'):
         config = '--psm 6'
-    elif destino == 'value' or 'unit':
+    elif destino in ('value', 'unit', 'value_pre', 'value_L', 'value_tt_limitador'):
         config = '--psm 7'
+    else:
+        config = '--psm 6'
         
     text = pytesseract.image_to_string(img, config=config)
     text = text.replace('\n', ' ').replace(' ©', '').replace(' O', '').strip()
@@ -151,6 +153,15 @@ def analyse_screenshot_custom(filename, index, destino):
         key = f"0x{hexstr.lower()}"
         val = results[0] if results else None
         print(f"value_tt_3bit prev={getattr(searchParameter, 'value_anterior', None)} val={val}")
+                
+        if val == "N/A":
+            # garante a estrutura
+            values.setdefault(index, [])
+            # só adiciona N/A se ainda não existir para este índice
+            ja_tem_na = any((isinstance(d, dict) and list(d.values())[0] == "N/A") for d in values[index])
+            if not ja_tem_na:
+                values[index].append({key: "N/A"})
+            return "NA"
 
         if index not in values:
             values[index] = []
@@ -160,6 +171,7 @@ def analyse_screenshot_custom(filename, index, destino):
                 searchParameter.value_anterior = val
                 print("value_tt_3bit mudança detectada")
                 return True
+
 
     # ---------------- value_tt_bit_a_bit_3 ----------------
     if destino == 'value_tt_bit_a_bit_3':

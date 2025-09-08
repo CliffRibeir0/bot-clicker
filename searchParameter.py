@@ -50,7 +50,7 @@ def verifica_value(z: int, size_proxy: int):
     canoe.alterar_sysvar("A0debug", "var", 0)
     time.sleep(0.1)
     canoe.close()
-    return take_region_screenshot(*Config.VALUE_REGION_WITH_RANGE_COLUMN,z,f"screenshot_value_{z}.png",delay=0.2,analyse=True,destino='value_pre',)
+    return take_region_screenshot(*value_region,z,f"screenshot_value_{z}.png",delay=0.2,analyse=True,destino='value_pre',)
 
 
 def select_and_ocr_tt_3bit(z, size_proxy):
@@ -80,7 +80,16 @@ def select_and_ocr_tt_3bit(z, size_proxy):
         canoe.alterar_sysvar("A0debug", "bitPos", 0)
         time.sleep(0.2)
         hexstr = f"{0:0{size_proxy*2}X}"
-        take_region_screenshot(*value_region, z, filename=f"screenshot_value_{z}_{hexstr}.png", analyse=True, destino='value_tt_3bit')
+        #take_region_screenshot(*value_region, z, filename=f"screenshot_value_{z}_{hexstr}.png", analyse=True, destino='value_tt_3bit')
+        ret0 = take_region_screenshot(
+            *value_region,
+            z,
+            filename=f"screenshot_value_{z}_{hexstr}.png",
+            analyse=True,
+            destino='value_tt_3bit',
+        )
+        if ret0 == "NA":
+            return "NA"
 
         # Varre deslocamentos 1<<i para achar mudança
         i = 0
@@ -97,6 +106,10 @@ def select_and_ocr_tt_3bit(z, size_proxy):
                 analyse=True,
                 destino='value_tt_3bit',
             )
+
+            if changed == "NA":
+                return "NA"
+            
             if changed is True:
                 break
             i += 1
@@ -154,6 +167,7 @@ def select_and_ocr_tt_3bit(z, size_proxy):
                     hexstr = f"{payload_int:0{size_proxy*2}X}"
                     take_region_screenshot(*value_region,z,filename=f"screenshot_value_TT_1Byte_{z}_{hexstr}.png",analyse=True,destino='value_tt_1byte',)
             break
+        return None
     finally:
         canoe.close()
 
